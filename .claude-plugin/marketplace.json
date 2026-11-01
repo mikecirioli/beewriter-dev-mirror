@@ -1,0 +1,29 @@
+{
+  "name": "cloudbees-marketplace",
+  "owner": {
+    "name": "Support Tooling Team",
+    "email": "support-tooling@cloudbees.com"
+  },
+  "metadata": {
+    "description": "Temporary public mirror of the beewriter entry only, for agentcore-bot CI access. Trimmed from the full internal cloudbees-claude-plugins marketplace -- see docs-bot/SPEC.md.",
+    "version": "2.0.0"
+  },
+  "plugins": [
+    {
+      "name": "beewriter",
+      "description": "Draft, review, and research CloudBees documentation to BeeWrite standards: draft docs from a Jira ticket to a draft PR, review and fix pages, respond to PR feedback, write Jira tickets and PR descriptions, and answer standards questions.",
+      "version": "0.1.0",
+      "source": "./plugins/beewriter",
+      "strict": false,
+      "skills": [
+        "./skills/draft-docs",
+        "./skills/review-docs",
+        "./skills/respond-to-review",
+        "./skills/jira-ticket",
+        "./skills/pr-description",
+        "./skills/research",
+        "./skills/standards"
+      ]
+    }
+  ]
+}

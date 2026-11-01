@@ -1,0 +1,141 @@
+# Product area -> repo map
+#
+# Maps each writer's product areas (by Jira project and component) to the
+# GitHub repos that hold that area's code, so a run knows where to read
+# product context. Built from Jira project and component names and GitHub repo
+# metadata (names, descriptions, last push dates), not from reading product code.
+#
+# confidence:
+#   verified  - repo exists, is active (recent pushedAt), and its name/description
+#               explicitly matches the product area or its Jira component.
+#   candidate - plausible from naming/components, but not confirmed by a human.
+#   unresolved - no repo found; needs the writer or an engineer to confirm.
+#
+# This is a starting point, not a finished map. Writers should correct it
+# when they find a wrong or missing repo.
+
+writer_a:
+  areas:
+    CBCI:
+      confidence: unresolved
+      note: >
+        BEE Jira project has 400+ components, one roughly per plugin/repo
+        (pattern "ci:<repo-name>", e.g. ci:unified-release -> cloudbees/unified-release).
+        Too many to pick a handful without the writer naming the ones that
+        actually matter for docs.
+      candidates:
+        - cloudbees/unified-release        # BEE component ci:unified-release; confirmed exists, WRITE access
+        - cloudbees/cloudbees-ci-mcp-router # BEE component description names this URL directly
+    Unify CI:
+      confidence: candidate
+      candidates:
+        - calculi-corp/external-ci-service # "Service to communicate to external CI System"; verified exists, active
+        - calculi-corp/ci-insights-service  # name suggests CI dashboards within Unify; existence not checked in detail
+
+writer_b:
+  areas:
+    Analytics:
+      confidence: verified
+      repos:
+        - calculi-corp/analytics-service   # matches CBP component srv:analytics-service; active 2026-10-06
+      candidates:
+        - calculi-corp/analytics-lib
+    ASPM:
+      confidence: candidate
+      note: No Jira project or component literally named ASPM or AppSec. This is inferred from a cluster of security-scanning repos in calculi-corp.
+      candidates:
+        - calculi-corp/security-orchestrator
+        - calculi-corp/mendsast-plugin
+        - calculi-corp/snyksast-plugin
+        - calculi-corp/sonar-scanner
+        - calculi-corp/github-security-plugin
+    Policy Engine:
+      confidence: verified
+      repos:
+        - calculi-corp/policy-service      # matches CBP component srv:policy-service exactly; active 2026-10-06
+      note: >
+        cloudbees/policy-engine also exists but is stale (last push 2019) -
+        a dead predecessor, not the live product. Don't use it.
+    CDRO Classic:
+      confidence: verified
+      repos:
+        - electric-cloud/flow-ui           # "Continuous Delivery User Interface"; active
+        - electric-cloud/pdk-cli           # matches CDRO Jira component plugin:pdk exactly
+      candidates:
+        - electric-cloud/nimbus            # no description; likely core engine, not confirmed
+      note: >
+        CD/RO's legacy org is `electric-cloud`, not `cloudbees`. Its ~70 CDRO
+        Jira components are mostly one per plugin (pattern "plugin:ec-<name>",
+        e.g. plugin:ec-git -> electric-cloud/EC-Git). Same "too many to list"
+        situation as CBCI.
+
+writer_c:
+  areas:
+    MCP Server:
+      confidence: verified
+      repos:
+        - cloudbees/unify-mcp-server        # matches UNIFYAI component "Unify MCP" (60 issues) exactly
+    Feature Management:
+      confidence: candidate
+      repos_active:
+        - cloudbees/fm-cli                  # "Feature Management standalone CLI"; active 2026-10-06
+      note: >
+        The main backend/UI repo wasn't found. cloudbees/rollout-sdm-app
+        exists but is stale (last push 2020) - probably a dead predecessor,
+        like policy-engine above. Feature Management began life as the
+        acquired "Rollout" product (SFM Jira project, api.rollout.io); its
+        current main repo may sit under an org this login can't see, or use
+        a name with no obvious "rollout"/"feature" substring. Needs the
+        writer to confirm.
+    AI Assistant:
+      confidence: verified
+      repos:
+        - cloudbees/unify-assistant-backend # matches UNIFYAI component "AI Assistant" (326 issues, the biggest)
+    Unify Foundations: # backup area
+      confidence: unresolved
+      note: No matching Jira project, component, or repo name found under any tried term (foundation, core, tenant, account, identity, org).
+
+writer_d:
+  areas:
+    Automation Engine:
+      confidence: verified
+      repos:
+        - calculi-corp/automation-service
+        - calculi-corp/cloudbees-automation-controller
+    Smart Tests:
+      confidence: candidate
+      repos:
+        - cloudbees-oss/smart-tests-cli     # public, verified, READ access confirmed
+      note: >
+        Jira project AIENG ("Smart Tests") has no components at all, and no
+        core backend repo was found under cloudbees, cloudbees-oss or
+        cloudbees-io. Likely sits in an org or private repo this login
+        can't see (Smart Tests originated from the Launchable acquisition).
+    Edge Runners:
+      confidence: verified
+      repos:
+        - calculi-corp/edge-runner           # description: "Implements Edge Runner connecting to CloudBees..."
+        - calculi-corp/edge-job-service       # description: "Implement Edge Jobs (POC)"
+    Unify Release Orchestration:
+      confidence: unresolved
+      note: >
+        CBP Jira component sys:workflows ("Workflow management and
+        execution") is the closest match, but no repo name corresponds to
+        it directly. The workflow-named repos found
+        (argoworkflows-actions, gha-run-cbp-workflow,
+        workflow-dispatch-actions, workflow-template-external-actions) are
+        all GitHub Actions helpers, not a core orchestration engine. Needs
+        the writer or an engineer to confirm.
+
+orgs_checked: # GitHub orgs searched when building this map
+  - cloudbees            # most content repos, some product repos (unified-release, unify-mcp-server, unify-assistant-backend, fm-cli, nextgen-ui, policy-engine [stale])
+  - calculi-corp         # CloudBees Platform / Unify microservices - one repo per "srv:" Jira component
+  - electric-cloud       # CD/RO (ElectricFlow) legacy product and its EC-* plugins
+  - cloudbees-oss        # public repos, e.g. smart-tests-cli
+  - cloudbees-io         # GitHub Actions / workflow building blocks (policy-check, edge-custom-job)
+  - cloudbees-compliance
+  - cloudbees-demos
+  - cloudbees-github-actions
+  - cloudbees-io-gha
+  - cloudbees-cbc-plugin-sdk
+  - electric-cloud-community
